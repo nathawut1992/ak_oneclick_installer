@@ -53,6 +53,9 @@ if [ "$INVAR" = "2" ] ; then
 	read EXTIP
 fi
 
+# ready ip for hexpatch
+PATCHIP=$(printf '\\x%02x\\x%02x\\x%02x\n' $(echo "$EXTIP" | grep -o [0-9]* | head -n1) $(echo "$EXTIP" | grep -o [0-9]* | head -n2 | tail -n1) $(echo "$EXTIP" | grep -o [0-9]* | head -n3 | tail -n1))
+
 # select server version
 echo "Select the version you want to install.\n1) genz - 003.005.01.04"
 read AKVERSION
@@ -72,13 +75,14 @@ if [ "$INVAR" = 1 ] ; then
 	sed -i "s/xxxxxxxx/$DBPASS/g" "setup.ini"
 	
 	# subservers
-	wget --no-check-certificate "$SUBSERVERS" -O "server.zip"
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$SUBSERVERSID" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$SUBSERVERSID" -O "server.zip" && rm -rf "/tmp/cookies.txt"
 	unzip "server.zip"
 	rm -f "server.zip"
 	sed -i "s/192.168.198.129/$EXTIP/g" "GatewayServer/setup.ini"
 	sed -i "s/xxxxxxxx/$DBPASS/g" "GatewayServer/setup.ini"
 	sed -i "s/192.168.198.129/$EXTIP/g" "TicketServer/setup.ini"
-	
+	sed -i "s/\xc0\xa8\xc6/$PATCHIP/g" "WorldServer/WorldServer"
+	sed -i "s/\xc0\xa8\xc6/$PATCHIP/g" "ZoneServer/ZoneServer"
 	# Data folder
 	wget --no-check-certificate "$DATAFOLDER" -O "Data.zip"
 	unzip "Data.zip" -d "Data"
@@ -92,7 +96,7 @@ if [ "$INVAR" = 1 ] ; then
 	
 	#set the server date to 2013
 	CURRENTYEAR=$(date | grep -Eo '[0-9]{4}')
-	while [ "$CURRENTYEAR" > "2013" ] ; do
+	while [ $CURRENTYEAR -lt 2013 ] ; do
 		date -s 'last year'
 	done
 	hwclock --systohc
