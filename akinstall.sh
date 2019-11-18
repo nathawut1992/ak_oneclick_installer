@@ -63,7 +63,7 @@ read AKVERSION
 # --------------------------------------------------
 # genz - 003.005.01.04
 # --------------------------------------------------
-if [ "$INVAR" = 1 ] ; then
+if [ "$AKVERSION" = 1 ] ; then
 	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/genz_003_005_01_04" -O "genz_003_005_01_04"
 	chmod 777 genz_003_005_01_04
 	. "/root/hxsy/genz_003_005_01_04"
