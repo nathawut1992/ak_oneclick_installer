@@ -8,3 +8,6 @@ SUBSERVERSID="14SBfbpVFicyGfV42D_sAL2KDvcg00nVa"
 
 # Data folder
 DATAFOLDER="https://docs.google.com/uc?export=download&id=10Ei-M_b8Lde1ALWpjux37l-uqsWJkdwJ"
+
+# SQL folder
+SQLFILES="https://docs.google.com/uc?export=download&id=1fuOOi0YiAOyTbTpJ8zVsXWQQDhSaTFyG"
