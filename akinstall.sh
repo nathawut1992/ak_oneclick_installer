@@ -1,32 +1,5 @@
 #!/bin/sh
 
-# make sure lists are up to date
-apt-get update
-
-# install wget in case it is missing
-sudo apt-get install wget -y
-
-# install unzip in case it is missing
-sudo apt-get install unzip -y
-
-# install postgresql in case it is missing
-apt-get install postgresql -y
-POSTGRESQLVERSION=$(psql --version | grep -Eo '([0-9]*\.[0-9]*)')
-
-# install pwgen in case it is missing
-apt-get install pwgen -y
-
-# generate database password
-DBPASS=$(pwgen -s 32 1)
-
-# setup postgresql
-cd "/etc/postgresql/$POSTGRESQLVERSION/main"
-sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" postgresql.conf
-sed -i "s+host    all             all             127.0.0.1/32            md5+host    all             all             0.0.0.0/0            md5+g" pg_hba.conf
-
-# change password for the postgres account
-sudo -u postgres psql -c "ALTER user postgres WITH password '$DBPASS';"
-
 # test for the main folder
 if [ -d "/root/hxsy" ] ; then
 	echo "The folder /root/hxsy already exists, please rename or delete it before running the script."
@@ -53,12 +26,39 @@ if [ "$INVAR" = "2" ] ; then
 	read EXTIP
 fi
 
-# ready ip for hexpatch
-PATCHIP=$(printf '\\x%02x\\x%02x\\x%02x\n' $(echo "$EXTIP" | grep -o [0-9]* | head -n1) $(echo "$EXTIP" | grep -o [0-9]* | head -n2 | tail -n1) $(echo "$EXTIP" | grep -o [0-9]* | head -n3 | tail -n1))
-
 # select server version
 echo "Select the version you want to install.\n1) genz - 003.005.01.04"
 read AKVERSION
+
+# make sure lists are up to date
+apt-get update
+
+# install wget in case it is missing
+sudo apt-get install wget -y
+
+# install unzip in case it is missing
+sudo apt-get install unzip -y
+
+# install postgresql in case it is missing
+apt-get install postgresql -y
+POSTGRESQLVERSION=$(psql --version | grep -Eo '([0-9]*)' | head -n1)
+
+# install pwgen in case it is missing
+apt-get install pwgen -y
+
+# generate database password
+DBPASS=$(pwgen -s 32 1)
+
+# setup postgresql
+cd "/etc/postgresql/$POSTGRESQLVERSION/main"
+sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" postgresql.conf
+sed -i "s+host    all             all             127.0.0.1/32            md5+host    all             all             0.0.0.0/0            md5+g" pg_hba.conf
+
+# change password for the postgres account
+sudo -u postgres psql -c "ALTER user postgres WITH password '$DBPASS';"
+
+# ready ip for hexpatch
+PATCHIP=$(printf '\\x%02x\\x%02x\\x%02x\n' $(echo "$EXTIP" | grep -o [0-9]* | head -n1) $(echo "$EXTIP" | grep -o [0-9]* | head -n2 | tail -n1) $(echo "$EXTIP" | grep -o [0-9]* | head -n3 | tail -n1))
 
 # --------------------------------------------------
 # genz - 003.005.01.04
