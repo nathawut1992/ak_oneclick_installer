@@ -6,6 +6,9 @@ apt-get update
 # install wget in case it is missing
 sudo apt-get install wget -y
 
+# install unzip in case it is missing
+sudo apt-get install unzip -y
+
 # install postgresql in case it is missing
 apt-get install postgresql -y
 POSTGRESQLVERSION=$(psql --version | grep -Eo '[0-9].[0-9]')
@@ -48,4 +51,59 @@ fi
 if [ "$INVAR" = "2" ] ; then
 	echo "Please enter IP:"
 	read EXTIP
+fi
+
+# select server version
+echo "Select the version you want to install.\n1) genz - 003.005.01.04"
+read AKVERSION
+
+# --------------------------------------------------
+# genz - 003.005.01.04
+# --------------------------------------------------
+if [ "$INVAR" = 1 ] ; then
+	wget --no-check-certificate "" -O "genz_003_005_01_04"		# TODO
+	chmod 777 genz_003_005_01_04
+	. "/root/hxsy/genz_003_005_01_04"
+	
+	# config files
+	wget --no-check-certificate "$MAINCONFIG" -O "config.zip"
+	unzip "config.zip"
+	rm -f "config.zip"
+	
+	# subservers
+	wget --no-check-certificate "$SUBSERVERS" -O "server.zip"
+	unzip "server.zip"
+	rm -f "server.zip"
+	
+	# Data folder
+	wget --no-check-certificate "$DATAFOLDER" -O "Data.zip"
+	unzip "Data.zip" -d "Data"
+	rm -f "Data.zip"
+	
+	# set permissions
+	chmod 777 /root -R
+	
+	# remove server setup files
+	rm -f genz_003_005_01_04
+	
+	#set the server date to 2013
+	CURRENTYEAR=$(date | grep -Eo '[0-9]{4}')
+	while [ "$CURRENTYEAR" > "2013" ] ; do
+		date -s 'last year'
+	done
+	hwclock --systohc
+	
+	# info screen
+	echo "--------------------------------------------------"
+	echo "Installation complete!"
+	echo "--------------------------------------------------"
+	echo "Server version: genz - 003.005.01.04"
+	echo "Postgresql version: $POSTGRESQLVERSION"
+	echo "Database user: postgres"
+	echo "Database password: $DBPASS"
+	echo "Server path: /root/hxsy/"
+	echo "Postgresql configuration path: /etc/postgresql/$POSTGRESQLVERSION/main/"
+	echo "\nMake sure to thank genz and Eperty123!"
+	echo "To start the server, please run /root/hxsy/start"
+	echo "To stop the server, please run /root/hxsy/stop"
 fi
