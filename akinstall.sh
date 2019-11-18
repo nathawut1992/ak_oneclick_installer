@@ -11,10 +11,10 @@ sudo apt-get install unzip -y
 
 # install postgresql in case it is missing
 apt-get install postgresql -y
-POSTGRESQLVERSION=$(psql --version | grep -Eo '[0-9].[0-9]')
+POSTGRESQLVERSION=$(psql --version | grep -Eo '([0-9]*\.[0-9]*)')
 
 # install pwgen in case it is missing
-apt-get install pwget -y
+apt-get install pwgen -y
 
 # generate database password
 DBPASS=$(pwgen -s 32 1)
