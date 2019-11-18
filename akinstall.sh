@@ -61,7 +61,7 @@ read AKVERSION
 # genz - 003.005.01.04
 # --------------------------------------------------
 if [ "$INVAR" = 1 ] ; then
-	wget --no-check-certificate "" -O "genz_003_005_01_04"		# TODO
+	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/genz_003_005_01_04" -O "genz_003_005_01_04"
 	chmod 777 genz_003_005_01_04
 	. "/root/hxsy/genz_003_005_01_04"
 	
@@ -69,11 +69,15 @@ if [ "$INVAR" = 1 ] ; then
 	wget --no-check-certificate "$MAINCONFIG" -O "config.zip"
 	unzip "config.zip"
 	rm -f "config.zip"
+	sed -i "s/xxxxxxxx/$DBPASS/g" "setup.ini"
 	
 	# subservers
 	wget --no-check-certificate "$SUBSERVERS" -O "server.zip"
 	unzip "server.zip"
 	rm -f "server.zip"
+	sed -i "s/192.168.198.129/$EXTIP/g" "GatewayServer/setup.ini"
+	sed -i "s/xxxxxxxx/$DBPASS/g" "GatewayServer/setup.ini"
+	sed -i "s/192.168.198.129/$EXTIP/g" "TicketServer/setup.ini"
 	
 	# Data folder
 	wget --no-check-certificate "$DATAFOLDER" -O "Data.zip"
