@@ -83,13 +83,29 @@ if [ "$INVAR" = 1 ] ; then
 	sed -i "s/192.168.198.129/$EXTIP/g" "TicketServer/setup.ini"
 	sed -i "s/\xc0\xa8\xc6/$PATCHIP/g" "WorldServer/WorldServer"
 	sed -i "s/\xc0\xa8\xc6/$PATCHIP/g" "ZoneServer/ZoneServer"
+	
 	# Data folder
 	wget --no-check-certificate "$DATAFOLDER" -O "Data.zip"
 	unzip "Data.zip" -d "Data"
 	rm -f "Data.zip"
 	
+	# SQL files
+	wget --no-check-certificate "$SQLFILES" -O "SQL.zip"
+	unzip "SQL.zip" -d "SQL"
+	rm -f "SQL.zip"
+	
 	# set permissions
 	chmod 777 /root -R
+	
+	# install postgresql database
+	service postgresql restart
+	sudo -u postgres psql -c "create database ffaccount encoding 'UTF8' template template0; create database ffdb1 encoding 'UTF8' template template0; create database ffmember encoding 'UTF8' template template0; create database itemmall encoding 'UTF8' template template0;"
+	sudo -u postgres psql -d ffaccount -c "\i '/root/hxsy/SQL/FFAccount.sql';"
+	sudo -u postgres psql -d ffdb1 -c "\i '/root/hxsy/SQL/FFDB1.sql';"
+	sudo -u postgres psql -d ffmember -c "\i '/root/hxsy/SQL/FFMember.sql';"
+	sudo -u postgres psql -d itemmall -c "\i '/root/hxsy/SQL/Itemmall.sql';"
+	sudo -u postgres psql -d ffaccount -c "UPDATE worlds SET ip = '$EXTIP' WHERE ip = '192.168.198.129';"
+	sudo -u postgres psql -d ffdb1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.198.129';"
 	
 	# remove server setup files
 	rm -f genz_003_005_01_04
@@ -101,17 +117,18 @@ if [ "$INVAR" = 1 ] ; then
 	done
 	hwclock --systohc
 	
-	# info screen
+	# display info screen
 	echo "--------------------------------------------------"
 	echo "Installation complete!"
 	echo "--------------------------------------------------"
 	echo "Server version: genz - 003.005.01.04"
+	echo "Server IP: $EXTIP"
 	echo "Postgresql version: $POSTGRESQLVERSION"
 	echo "Database user: postgres"
 	echo "Database password: $DBPASS"
 	echo "Server path: /root/hxsy/"
 	echo "Postgresql configuration path: /etc/postgresql/$POSTGRESQLVERSION/main/"
 	echo "\nMake sure to thank genz and Eperty123!"
-	echo "To start the server, please run /root/hxsy/start"
+	echo "\nTo start the server, please run /root/hxsy/start"
 	echo "To stop the server, please run /root/hxsy/stop"
 fi
