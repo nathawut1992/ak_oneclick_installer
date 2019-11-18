@@ -33,6 +33,12 @@ read AKVERSION
 # make sure lists are up to date
 apt-get update
 
+# install sudo in case it is missing
+apt-get install sudo -y
+
+# make sure start / stop commands are working
+sudo apt-get install psmisc -y
+
 # install wget in case it is missing
 sudo apt-get install wget -y
 
@@ -40,11 +46,11 @@ sudo apt-get install wget -y
 sudo apt-get install unzip -y
 
 # install postgresql in case it is missing
-apt-get install postgresql -y
-POSTGRESQLVERSION=$(psql --version | grep -Eo '([0-9]*)' | head -n1)
+sudo apt-get install postgresql -y
+POSTGRESQLVERSION=$(psql --version | grep -Eo '[0-9].[0-9]' | head -n1)
 
 # install pwgen in case it is missing
-apt-get install pwgen -y
+sudo apt-get install pwgen -y
 
 # generate database password
 DBPASS=$(pwgen -s 32 1)
@@ -64,6 +70,7 @@ PATCHIP=$(printf '\\x%02x\\x%02x\\x%02x\n' $(echo "$EXTIP" | grep -o [0-9]* | he
 # genz - 003.005.01.04
 # --------------------------------------------------
 if [ "$AKVERSION" = 1 ] ; then
+	cd "/root/hxsy"
 	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/genz_003_005_01_04" -O "genz_003_005_01_04"
 	chmod 777 genz_003_005_01_04
 	. "/root/hxsy/genz_003_005_01_04"
