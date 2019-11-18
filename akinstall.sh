@@ -99,7 +99,10 @@ if [ "$INVAR" = 1 ] ; then
 	
 	# install postgresql database
 	service postgresql restart
-	sudo -u postgres psql -c "create database ffaccount encoding 'UTF8' template template0; create database ffdb1 encoding 'UTF8' template template0; create database ffmember encoding 'UTF8' template template0; create database itemmall encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database ffaccount encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database ffdb1 encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database ffmember encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database itemmall encoding 'UTF8' template template0;"
 	sudo -u postgres psql -d ffaccount -c "\i '/root/hxsy/SQL/FFAccount.sql';"
 	sudo -u postgres psql -d ffdb1 -c "\i '/root/hxsy/SQL/FFDB1.sql';"
 	sudo -u postgres psql -d ffmember -c "\i '/root/hxsy/SQL/FFMember.sql';"
