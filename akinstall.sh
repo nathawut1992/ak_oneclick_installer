@@ -122,7 +122,7 @@ if [ "$AKVERSION" = 1 ] ; then
 	
 	#set the server date to 2013
 	CURRENTYEAR=$(date | grep -Eo '[0-9]{4}')
-	while [ $CURRENTYEAR -lt 2013 ] ; do
+	while [ $CURRENTYEAR -gt 2013 ] ; do
 		date -s 'last year'
 	done
 	hwclock --systohc
