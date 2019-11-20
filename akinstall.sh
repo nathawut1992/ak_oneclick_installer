@@ -121,10 +121,8 @@ if [ "$AKVERSION" = 1 ] ; then
 	rm -f genz_003_005_01_04
 	
 	#set the server date to 2013
-	CURRENTYEAR=$(date | grep -Eo '[0-9]{4}')
-	while [ $CURRENTYEAR -gt 2013 ] ; do
-		date -s 'last year'
-	done
+	timedatectl set-ntp 0
+	date -s "$(date +'2013%m%d %H:%M')"
 	hwclock --systohc
 	
 	# display info screen
