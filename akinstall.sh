@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# define colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+LRED='\033[1;31m'
+LGREEN='\033[1;32m'
+RC='\033[0m'
+
 # test for the main folder
 if [ -d "/root/hxsy" ] ; then
 	echo "The folder /root/hxsy already exists, please rename or delete it before running the script."
@@ -66,6 +73,9 @@ sudo -u postgres psql -c "ALTER user postgres WITH password '$DBPASS';"
 # ready ip for hexpatch
 PATCHIP=$(printf '\\x%02x\\x%02x\\x%02x\n' $(echo "$EXTIP" | grep -o [0-9]* | head -n1) $(echo "$EXTIP" | grep -o [0-9]* | head -n2 | tail -n1) $(echo "$EXTIP" | grep -o [0-9]* | head -n3 | tail -n1))
 
+# set version name
+VERSIONNAME="NONE"
+
 # --------------------------------------------------
 # genz - 003.005.01.04
 # --------------------------------------------------
@@ -125,18 +135,30 @@ if [ "$AKVERSION" = 1 ] ; then
 	date -s "$(date +'2013%m%d %H:%M')"
 	hwclock --systohc
 	
-	# display info screen
+	# setup info
+	VERSIONNAME="genz - 003.005.01.04"
+	CREDITS="genz and Eperty123"
+fi
+
+if [ "$VERSIONNAME" = "NONE" ] ; then
+	# display error
+	echo "${RED}--------------------------------------------------"
+	echo "Installation failed!"
 	echo "--------------------------------------------------"
+	echo "The selected version could not be installed. Please try again and choose a different version.${RC}"
+else
+	# display info screen
+	echo "${LGREEN}--------------------------------------------------"
 	echo "Installation complete!"
 	echo "--------------------------------------------------"
-	echo "Server version: genz - 003.005.01.04"
+	echo "Server version: $VERSIONNAME"
 	echo "Server IP: $EXTIP"
 	echo "Postgresql version: $POSTGRESQLVERSION"
 	echo "Database user: postgres"
 	echo "Database password: $DBPASS"
 	echo "Server path: /root/hxsy/"
 	echo "Postgresql configuration path: /etc/postgresql/$POSTGRESQLVERSION/main/"
-	echo "\nMake sure to thank genz and Eperty123!"
+	echo "\nMake sure to thank $CREDITS!"
 	echo "\nTo start the server, please run /root/hxsy/start"
-	echo "To stop the server, please run /root/hxsy/stop"
+	echo "To stop the server, please run /root/hxsy/stop${RC}"
 fi
