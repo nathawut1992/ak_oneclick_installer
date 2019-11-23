@@ -1,0 +1,13 @@
+# yokohiro - 003.005.01.05
+
+# config files
+MAINCONFIG="https://docs.google.com/uc?export=download&id=1GWxajWlTpxHmxSU8Ap6in5Maq6iPHTU5"
+
+# subservers
+SUBSERVERSID="1vYvktW6M8ZVZGDXhu2vRak4yHwOGUq8"
+
+# Data folder
+DATAFOLDER="https://docs.google.com/uc?export=download&id=19TNMGky1QBjVURnnfBBuNCcgeMOTZI3L"
+
+# SQL folder
+SQLFILES="https://docs.google.com/uc?export=download&id=1fuOOi0YiAOyTbTpJ8zVsXWQQDhSaTFyG"
