@@ -166,6 +166,8 @@ if [ "$AKVERSION" = 1 ] ; then
 	sed -i "s/\xff\x3d\xc0\xa8\x00/\xff\x3d$PATCHIP/g" "WorldServer102/WorldServer102"
 	sed -i "s/\xff\x3d\xc0\xa8\x00/\xff\x3d$PATCHIP/g" "ZoneServer101/ZoneServer101"
 	sed -i "s/\xff\x3d\xc0\xa8\x00/\xff\x3d$PATCHIP/g" "ZoneServer102/ZoneServer102"
+	sed -i "s/10320/10321/g" "ZoneServer102/setup.ini"
+	sed -i "s/20060/20061/g" "ZoneServer102/setup.ini"
 	
 	# Data folder
 	wget --no-check-certificate "$DATAFOLDER" -O "Data.zip"
