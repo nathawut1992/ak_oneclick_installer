@@ -34,7 +34,7 @@ if [ "$INVAR" = "2" ] ; then
 fi
 
 # select server version
-echo "Select the version you want to install.\n1) yokohiro - 003.005.01.05\n2) genz - 003.005.01.04"
+echo "Select the version you want to install.\n1) yokohiro - 003.005.01.04 (recommended)\n2) genz - 003.005.01.04"
 read AKVERSION
 
 # make sure lists are up to date
@@ -141,13 +141,13 @@ if [ "$AKVERSION" = 2 ] ; then
 fi
 
 # --------------------------------------------------
-# yokohiro - 003.005.01.05
+# yokohiro - 003.005.01.04
 # --------------------------------------------------
 if [ "$AKVERSION" = 1 ] ; then
 	cd "/root/hxsy"
-	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/yokohiro_003_005_01_05" -O "yokohiro_003_005_01_05"
-	chmod 777 yokohiro_003_005_01_05
-	. "/root/hxsy/yokohiro_003_005_01_05"
+	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/yokohiro_003_005_01_04" -O "yokohiro_003_005_01_04"
+	chmod 777 yokohiro_003_005_01_04
+	. "/root/hxsy/yokohiro_003_005_01_04"
 	
 	# config files
 	wget --no-check-certificate "$MAINCONFIG" -O "config.zip"
@@ -194,7 +194,7 @@ if [ "$AKVERSION" = 1 ] ; then
 	sudo -u postgres psql -d ffdb1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.198.129';"
 	
 	# remove server setup files
-	rm -f yokohiro_003_005_01_05
+	rm -f yokohiro_003_005_01_04
 	
 	#set the server date to 2013
 	timedatectl set-ntp 0
@@ -202,7 +202,7 @@ if [ "$AKVERSION" = 1 ] ; then
 	hwclock --systohc
 	
 	# setup info
-	VERSIONNAME="yokohiro - 003.005.01.05"
+	VERSIONNAME="yokohiro - 003.005.01.04"
 	CREDITS="yokohiro, genz and Eperty123"
 fi
 
