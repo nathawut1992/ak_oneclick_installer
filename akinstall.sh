@@ -102,7 +102,7 @@ if [ "$AKVERSION" = 2 ] ; then
 	sed -i "s/\xc0\xa8\xc6/$PATCHIP/g" "ZoneServer/ZoneServer"
 	
 	# Data folder
-	wget --no-check-certificate "$DATAFOLDER" -O "Data.zip"
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$DATAFOLDER" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$DATAFOLDER" -O "Data.zip" && rm -rf "/tmp/cookies.txt"
 	unzip "Data.zip" -d "Data"
 	rm -f "Data.zip"
 	
@@ -170,7 +170,7 @@ if [ "$AKVERSION" = 1 ] ; then
 	sed -i "s/20060/20061/g" "ZoneServer102/setup.ini"
 	
 	# Data folder
-	wget --no-check-certificate "$DATAFOLDER" -O "Data.zip"
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$DATAFOLDER" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$DATAFOLDER" -O "Data.zip" && rm -rf "/tmp/cookies.txt"
 	unzip "Data.zip" -d "Data"
 	rm -f "Data.zip"
 	
