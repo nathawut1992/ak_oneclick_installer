@@ -7,6 +7,15 @@ LRED='\033[1;31m'
 LGREEN='\033[1;32m'
 RC='\033[0m'
 
+# make sure lists are up to date
+apt-get -qq update
+
+# install sudo in case it is missing
+apt-get -qq install sudo -y
+
+# make sure that ifconfig works
+sudo apt-get -qq install net-tools
+
 # test for the main folder
 if [ -d "/root/hxsy" ] ; then
 	echo "The folder /root/hxsy already exists, please rename or delete it before running the script."
@@ -37,27 +46,21 @@ fi
 echo "Select the version you want to install.\n1) yokohiro - 003.005.01.04 (recommended)\n2) genz - 003.005.01.04"
 read AKVERSION
 
-# make sure lists are up to date
-apt-get update
-
-# install sudo in case it is missing
-apt-get install sudo -y
-
 # make sure start / stop commands are working
-sudo apt-get install psmisc -y
+sudo apt-get -qq install psmisc -y
 
 # install wget in case it is missing
-sudo apt-get install wget -y
+sudo apt-get -qq install wget -y
 
 # install unzip in case it is missing
-sudo apt-get install unzip -y
+sudo apt-get -qq install unzip -y
 
 # install postgresql in case it is missing
-sudo apt-get install postgresql -y
+sudo apt-get -qq install postgresql -y
 POSTGRESQLVERSION=$(psql --version | grep -Eo '[0-9].[0-9]' | head -n1)
 
 # install pwgen in case it is missing
-sudo apt-get install pwgen -y
+sudo apt-get -qq install pwgen -y
 
 # generate database password
 DBPASS=$(pwgen -s 32 1)
