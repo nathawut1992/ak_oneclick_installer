@@ -249,14 +249,14 @@ if [ "$AKVERSION" = 3 ] ; then
 	
 	# install postgresql database
 	service postgresql restart
-	sudo -u postgres psql -c "create database FFAccount encoding 'UTF8' template template0;"
-	sudo -u postgres psql -c "create database FFDB1 encoding 'UTF8' template template0;"
-	sudo -u postgres psql -c "create database FFMember encoding 'UTF8' template template0;"
-	sudo -u postgres psql -d ffaccount -c "\i '/root/hxsy/SQL/FFAccount.sql';"
-	sudo -u postgres psql -d ffdb1 -c "\i '/root/hxsy/SQL/FFDB1.sql';"
-	sudo -u postgres psql -d ffmember -c "\i '/root/hxsy/SQL/FFMember.sql';"
-	sudo -u postgres psql -d ffaccount -c "UPDATE worlds SET ip = '$EXTIP' WHERE ip = '192.168.1.99';"
-	sudo -u postgres psql -d ffdb1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.1.99';"
+	sudo -u postgres psql -c "create database \"FFAccount\" encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database \"FFDB1\" encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database \"FFMember\" encoding 'UTF8' template template0;"
+	sudo -u postgres psql -d FFAccount -c "\i '/root/hxsy/SQL/FFAccount.sql';"
+	sudo -u postgres psql -d FFDB1 -c "\i '/root/hxsy/SQL/FFDB1.sql';"
+	sudo -u postgres psql -d FFMember -c "\i '/root/hxsy/SQL/FFMember.sql';"
+	sudo -u postgres psql -d FFAccount -c "UPDATE worlds SET ip = '$EXTIP' WHERE ip = '192.168.1.99';"
+	sudo -u postgres psql -d FFDB1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.1.99';"
 	
 	# remove server setup files
 	rm -f eperty123_003_005_01_04
