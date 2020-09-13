@@ -122,9 +122,9 @@ if [ "$AKVERSION" = 1 ] ; then
 	sudo -u postgres psql -c "create database ffaccount encoding 'UTF8' template template0;"
 	sudo -u postgres psql -c "create database ffdb1 encoding 'UTF8' template template0;"
 	sudo -u postgres psql -c "create database ffmember encoding 'UTF8' template template0;"
-	sudo -u postgres psql -d ffaccount -c "\i '/root/hxsy/SQL/FFAccount.sql';"
-	sudo -u postgres psql -d ffdb1 -c "\i '/root/hxsy/SQL/FFDB1.sql';"
-	sudo -u postgres psql -d ffmember -c "\i '/root/hxsy/SQL/FFMember.sql';"
+	sudo -u postgres psql -d ffaccount -c "\i '/root/hxsy/SQL/FFAccount.bak';"
+	sudo -u postgres psql -d ffdb1 -c "\i '/root/hxsy/SQL/FFDB1.bak';"
+	sudo -u postgres psql -d ffmember -c "\i '/root/hxsy/SQL/FFMember.bak';"
 	sudo -u postgres psql -d ffaccount -c "UPDATE worlds SET ip = '$EXTIP' WHERE ip = '192.168.178.59';"
 	sudo -u postgres psql -d ffdb1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.178.59';"
 	
