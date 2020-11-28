@@ -43,7 +43,7 @@ if [ "$INVAR" = "2" ] ; then
 fi
 
 # select server version
-echo "Select the version you want to install.\n1) frostblock - 007.004.01.02\n2) yokohiro - 003.005.01.04 (recommended)\n3) genz - 003.005.01.04\n4) eperty123 - 003.005.01.04\n5) hycker - 003.005.01.03"
+echo "Select the version you want to install.\n1) wangweijing1262 - 007.004.01.02\n2) yokohiro - 003.005.01.04 (recommended)\n3) genz - 003.005.01.04\n4) eperty123 - 003.005.01.04\n5) hycker - 003.005.01.03"
 read AKVERSION
 
 # make sure start / stop commands are working
@@ -80,13 +80,13 @@ PATCHIP=$(printf '\\x%02x\\x%02x\\x%02x\n' $(echo "$EXTIP" | grep -o [0-9]* | he
 VERSIONNAME="NONE"
 
 # --------------------------------------------------
-# frostblock - 007.004.01.02
+# wangweijing1262 - 007.004.01.02
 # --------------------------------------------------
 if [ "$AKVERSION" = 1 ] ; then
 	cd "/root/hxsy"
-	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/frostblock_007_004_01_02" -O "frostblock_007_004_01_02"
-	chmod 777 frostblock_007_004_01_02
-	. "/root/hxsy/frostblock_007_004_01_02"
+	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/wangweijing1262_007_004_01_02" -O "wangweijing1262_007_004_01_02"
+	chmod 777 wangweijing1262_007_004_01_02
+	. "/root/hxsy/wangweijing1262_007_004_01_02"
 	
 	# config files
 	wget --no-check-certificate "$MAINCONFIG" -O "config.zip"
@@ -129,7 +129,7 @@ if [ "$AKVERSION" = 1 ] ; then
 	sudo -u postgres psql -d ffdb1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.178.59';"
 	
 	# remove server setup files
-	rm -f frostblock_007_004_01_02
+	rm -f wangweijing1262_007_004_01_02
 	
 	#set the server date to 2013
 	timedatectl set-ntp 0
@@ -137,8 +137,8 @@ if [ "$AKVERSION" = 1 ] ; then
 	hwclock --systohc
 	
 	# setup info
-	VERSIONNAME="frostblock - 007.004.01.02"
-	CREDITS="Frostblock"
+	VERSIONNAME="wangweijing1262 - 007.004.01.02"
+	CREDITS="WangWeiJing1262"
 fi
 
 # --------------------------------------------------
