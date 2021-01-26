@@ -7,6 +7,15 @@ LRED='\033[1;31m'
 LGREEN='\033[1;32m'
 RC='\033[0m'
 
+# make sure lists are up to date
+apt-get -qq update
+
+# install sudo in case it is missing
+apt-get -qq install sudo -y
+
+# make sure that ifconfig works
+sudo apt-get -qq install net-tools
+
 # test for the main folder
 if [ -d "/root/hxsy" ] ; then
 	echo "The folder /root/hxsy already exists, please rename or delete it before running the script."
@@ -34,30 +43,24 @@ if [ "$INVAR" = "2" ] ; then
 fi
 
 # select server version
-echo "Select the version you want to install.\n1) yokohiro - 003.005.01.04 (recommended)\n2) genz - 003.005.01.04"
+echo "Select the version you want to install.\n1) yokohiro - 007.010.01.02 (recommended)\n2) wangweijing1262 - 007.004.01.02\n3) yokohiro - 003.005.01.04\n4) genz - 003.005.01.04\n5) eperty123 - 003.005.01.04\n6) hycker - 003.005.01.03"
 read AKVERSION
 
-# make sure lists are up to date
-apt-get update
-
-# install sudo in case it is missing
-apt-get install sudo -y
-
 # make sure start / stop commands are working
-sudo apt-get install psmisc -y
+sudo apt-get -qq install psmisc -y
 
 # install wget in case it is missing
-sudo apt-get install wget -y
+sudo apt-get -qq install wget -y
 
 # install unzip in case it is missing
-sudo apt-get install unzip -y
+sudo apt-get -qq install unzip -y
 
 # install postgresql in case it is missing
-sudo apt-get install postgresql -y
+sudo apt-get -qq install postgresql -y
 POSTGRESQLVERSION=$(psql --version | grep -Eo '[0-9].[0-9]' | head -n1)
 
 # install pwgen in case it is missing
-sudo apt-get install pwgen -y
+sudo apt-get -qq install pwgen -y
 
 # generate database password
 DBPASS=$(pwgen -s 32 1)
@@ -77,9 +80,201 @@ PATCHIP=$(printf '\\x%02x\\x%02x\\x%02x\n' $(echo "$EXTIP" | grep -o [0-9]* | he
 VERSIONNAME="NONE"
 
 # --------------------------------------------------
-# genz - 003.005.01.04
+# yokohiro - 010.004.01.02
+# --------------------------------------------------
+if [ "$AKVERSION" = 1 ] ; then
+	cd "/root/hxsy"
+	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/yokohiro_007_010_01_02" -O "yokohiro_007_010_01_02"
+	chmod 777 yokohiro_007_010_01_02
+	. "/root/hxsy/yokohiro_007_010_01_02"
+	
+	# config files
+	wget --no-check-certificate "$MAINCONFIG" -O "config.zip"
+	unzip "config.zip"
+	rm -f "config.zip"
+	sed -i "s/xxxxxxxx/$DBPASS/g" "setup.ini"
+	
+	# subservers
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$SUBSERVERSID" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$SUBSERVERSID" -O "server.zip" && rm -rf "/tmp/cookies.txt"
+	unzip "server.zip"
+	rm -f "server.zip"
+	sed -i "s/192.168.178.59/$EXTIP/g" "GatewayServer/setup.ini"
+	sed -i "s/xxxxxxxx/$DBPASS/g" "GatewayServer/setup.ini"
+	sed -i "s/192.168.178.59/$EXTIP/g" "TicketServer/setup.ini"
+	sed -i "s/\xc0\xa8\xb2/$PATCHIP/g" "WorldServer/WorldServer"
+	sed -i "s/\xc0\xa8\xb2/$PATCHIP/g" "ZoneServer/ZoneServer"
+	
+	# Data folder
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$DATAFOLDER" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$DATAFOLDER" -O "Data.zip" && rm -rf "/tmp/cookies.txt"
+	unzip "Data.zip" -d "Data"
+	rm -f "Data.zip"
+	
+	# SQL files
+	wget --no-check-certificate "$SQLFILES" -O "SQL.zip"
+	unzip "SQL.zip" -d "SQL"
+	rm -f "SQL.zip"
+	
+	# set permissions
+	chmod 777 /root -R
+	
+	# install postgresql database
+	service postgresql restart
+	sudo -u postgres psql -c "create database ffaccount encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database ffdb1 encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database ffmember encoding 'UTF8' template template0;"
+	sudo -u postgres psql -d ffaccount -c "\i '/root/hxsy/SQL/FFAccount.bak';"
+	sudo -u postgres psql -d ffdb1 -c "\i '/root/hxsy/SQL/FFDB1.bak';"
+	sudo -u postgres psql -d ffmember -c "\i '/root/hxsy/SQL/FFMember.bak';"
+	sudo -u postgres psql -d ffaccount -c "UPDATE worlds SET ip = '$EXTIP' WHERE ip = '192.168.178.59';"
+	sudo -u postgres psql -d ffdb1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.178.59';"
+	
+	# remove server setup files
+	rm -f yokohiro_007_010_01_02
+	
+	#set the server date to 2013
+	timedatectl set-ntp 0
+	date -s "$(date +'2013%m%d %H:%M')"
+	hwclock --systohc
+	
+	# setup info
+	VERSIONNAME="yokohiro - 007.010.01.02"
+	CREDITS="yokohiro, Eperty123 and WangWeiJing1262"
+fi
+
+# --------------------------------------------------
+# wangweijing1262 - 007.004.01.02
 # --------------------------------------------------
 if [ "$AKVERSION" = 2 ] ; then
+	cd "/root/hxsy"
+	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/wangweijing1262_007_004_01_02" -O "wangweijing1262_007_004_01_02"
+	chmod 777 wangweijing1262_007_004_01_02
+	. "/root/hxsy/wangweijing1262_007_004_01_02"
+	
+	# config files
+	wget --no-check-certificate "$MAINCONFIG" -O "config.zip"
+	unzip "config.zip"
+	rm -f "config.zip"
+	sed -i "s/xxxxxxxx/$DBPASS/g" "setup.ini"
+	
+	# subservers
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$SUBSERVERSID" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$SUBSERVERSID" -O "server.zip" && rm -rf "/tmp/cookies.txt"
+	unzip "server.zip"
+	rm -f "server.zip"
+	sed -i "s/192.168.178.59/$EXTIP/g" "GatewayServer/setup.ini"
+	sed -i "s/xxxxxxxx/$DBPASS/g" "GatewayServer/setup.ini"
+	sed -i "s/192.168.178.59/$EXTIP/g" "TicketServer/setup.ini"
+	sed -i "s/\xc0\xa8\xb2/$PATCHIP/g" "WorldServer/WorldServer"
+	sed -i "s/\xc0\xa8\xb2/$PATCHIP/g" "ZoneServer/ZoneServer"
+	
+	# Data folder
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$DATAFOLDER" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$DATAFOLDER" -O "Data.zip" && rm -rf "/tmp/cookies.txt"
+	unzip "Data.zip" -d "Data"
+	rm -f "Data.zip"
+	
+	# SQL files
+	wget --no-check-certificate "$SQLFILES" -O "SQL.zip"
+	unzip "SQL.zip" -d "SQL"
+	rm -f "SQL.zip"
+	
+	# set permissions
+	chmod 777 /root -R
+	
+	# install postgresql database
+	service postgresql restart
+	sudo -u postgres psql -c "create database ffaccount encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database ffdb1 encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database ffmember encoding 'UTF8' template template0;"
+	sudo -u postgres psql -d ffaccount -c "\i '/root/hxsy/SQL/FFAccount.bak';"
+	sudo -u postgres psql -d ffdb1 -c "\i '/root/hxsy/SQL/FFDB1.bak';"
+	sudo -u postgres psql -d ffmember -c "\i '/root/hxsy/SQL/FFMember.bak';"
+	sudo -u postgres psql -d ffaccount -c "UPDATE worlds SET ip = '$EXTIP' WHERE ip = '192.168.178.59';"
+	sudo -u postgres psql -d ffdb1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.178.59';"
+	
+	# remove server setup files
+	rm -f wangweijing1262_007_004_01_02
+	
+	#set the server date to 2013
+	timedatectl set-ntp 0
+	date -s "$(date +'2013%m%d %H:%M')"
+	hwclock --systohc
+	
+	# setup info
+	VERSIONNAME="wangweijing1262 - 007.004.01.02"
+	CREDITS="WangWeiJing1262"
+fi
+
+# --------------------------------------------------
+# yokohiro - 003.005.01.04
+# --------------------------------------------------
+if [ "$AKVERSION" = 3 ] ; then
+	cd "/root/hxsy"
+	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/yokohiro_003_005_01_04" -O "yokohiro_003_005_01_04"
+	chmod 777 yokohiro_003_005_01_04
+	. "/root/hxsy/yokohiro_003_005_01_04"
+	
+	# config files
+	wget --no-check-certificate "$MAINCONFIG" -O "config.zip"
+	unzip "config.zip"
+	rm -f "config.zip"
+	sed -i "s/123456/$DBPASS/g" "setup.ini"
+	
+	# subservers
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$SUBSERVERSID" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$SUBSERVERSID" -O "server.zip" && rm -rf "/tmp/cookies.txt"
+	unzip "server.zip"
+	rm -f "server.zip"
+	sed -i "s/192.168.0.33/$EXTIP/g" "GatewayServer/setup.ini"
+	sed -i "s/123456/$DBPASS/g" "GatewayServer/setup.ini"
+	sed -i "s/192.168.0.33/$EXTIP/g" "TicketServer/setup.ini"
+	sed -i "s/\xff\x3d\xc0\xa8\x00/\xff\x3d$PATCHIP/g" "WorldServer101/WorldServer101"
+	sed -i "s/\xff\x3d\xc0\xa8\x00/\xff\x3d$PATCHIP/g" "WorldServer102/WorldServer102"
+	sed -i "s/\xff\x3d\xc0\xa8\x00/\xff\x3d$PATCHIP/g" "ZoneServer101/ZoneServer101"
+	sed -i "s/\xff\x3d\xc0\xa8\x00/\xff\x3d$PATCHIP/g" "ZoneServer102/ZoneServer102"
+	sed -i "s/10320/10321/g" "ZoneServer102/setup.ini"
+	sed -i "s/20060/20061/g" "ZoneServer102/setup.ini"
+	
+	# Data folder
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$DATAFOLDER" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$DATAFOLDER" -O "Data.zip" && rm -rf "/tmp/cookies.txt"
+	unzip "Data.zip" -d "Data"
+	rm -f "Data.zip"
+	
+	# SQL files
+	wget --no-check-certificate "$SQLFILES" -O "SQL.zip"
+	unzip "SQL.zip" -d "SQL"
+	rm -f "SQL.zip"
+	
+	# set permissions
+	chmod 777 /root -R
+	
+	# install postgresql database
+	service postgresql restart
+	sudo -u postgres psql -c "create database ffaccount encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database ffdb1 encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database ffmember encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database itemmall encoding 'UTF8' template template0;"
+	sudo -u postgres psql -d ffaccount -c "\i '/root/hxsy/SQL/FFAccount.sql';"
+	sudo -u postgres psql -d ffdb1 -c "\i '/root/hxsy/SQL/FFDB1.sql';"
+	sudo -u postgres psql -d ffmember -c "\i '/root/hxsy/SQL/FFMember.sql';"
+	sudo -u postgres psql -d itemmall -c "\i '/root/hxsy/SQL/Itemmall.sql';"
+	sudo -u postgres psql -d ffaccount -c "UPDATE worlds SET ip = '$EXTIP' WHERE ip = '192.168.198.129';"
+	sudo -u postgres psql -d ffdb1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.198.129';"
+	
+	# remove server setup files
+	rm -f yokohiro_003_005_01_04
+	
+	#set the server date to 2013
+	timedatectl set-ntp 0
+	date -s "$(date +'2013%m%d %H:%M')"
+	hwclock --systohc
+	
+	# setup info
+	VERSIONNAME="yokohiro - 003.005.01.04"
+	CREDITS="yokohiro, genz and Eperty123"
+fi
+
+# --------------------------------------------------
+# genz - 003.005.01.04
+# --------------------------------------------------
+if [ "$AKVERSION" = 4 ] ; then
 	cd "/root/hxsy"
 	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/genz_003_005_01_04" -O "genz_003_005_01_04"
 	chmod 777 genz_003_005_01_04
@@ -102,7 +297,7 @@ if [ "$AKVERSION" = 2 ] ; then
 	sed -i "s/\xc0\xa8\xc6/$PATCHIP/g" "ZoneServer/ZoneServer"
 	
 	# Data folder
-	wget --no-check-certificate "$DATAFOLDER" -O "Data.zip"
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$DATAFOLDER" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$DATAFOLDER" -O "Data.zip" && rm -rf "/tmp/cookies.txt"
 	unzip "Data.zip" -d "Data"
 	rm -f "Data.zip"
 	
@@ -141,36 +336,94 @@ if [ "$AKVERSION" = 2 ] ; then
 fi
 
 # --------------------------------------------------
-# yokohiro - 003.005.01.04
+# eperty123 - 003.005.01.04
 # --------------------------------------------------
-if [ "$AKVERSION" = 1 ] ; then
+if [ "$AKVERSION" = 5 ] ; then
 	cd "/root/hxsy"
-	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/yokohiro_003_005_01_04" -O "yokohiro_003_005_01_04"
-	chmod 777 yokohiro_003_005_01_04
-	. "/root/hxsy/yokohiro_003_005_01_04"
+	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/eperty123_003_005_01_04" -O "eperty123_003_005_01_04"
+	chmod 777 eperty123_003_005_01_04
+	. "/root/hxsy/eperty123_003_005_01_04"
 	
 	# config files
 	wget --no-check-certificate "$MAINCONFIG" -O "config.zip"
 	unzip "config.zip"
 	rm -f "config.zip"
-	sed -i "s/123456/$DBPASS/g" "setup.ini"
+	sed -i "s/123/$DBPASS/g" "setup.ini"
 	
 	# subservers
 	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$SUBSERVERSID" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$SUBSERVERSID" -O "server.zip" && rm -rf "/tmp/cookies.txt"
 	unzip "server.zip"
 	rm -f "server.zip"
-	sed -i "s/192.168.0.33/$EXTIP/g" "GatewayServer/setup.ini"
-	sed -i "s/123456/$DBPASS/g" "GatewayServer/setup.ini"
-	sed -i "s/192.168.0.33/$EXTIP/g" "TicketServer/setup.ini"
-	sed -i "s/\xff\x3d\xc0\xa8\x00/\xff\x3d$PATCHIP/g" "WorldServer101/WorldServer101"
-	sed -i "s/\xff\x3d\xc0\xa8\x00/\xff\x3d$PATCHIP/g" "WorldServer102/WorldServer102"
-	sed -i "s/\xff\x3d\xc0\xa8\x00/\xff\x3d$PATCHIP/g" "ZoneServer101/ZoneServer101"
-	sed -i "s/\xff\x3d\xc0\xa8\x00/\xff\x3d$PATCHIP/g" "ZoneServer102/ZoneServer102"
-	sed -i "s/10320/10321/g" "ZoneServer102/setup.ini"
-	sed -i "s/20060/20061/g" "ZoneServer102/setup.ini"
+	sed -i "s/123/$DBPASS/g" "GatewayServer/setup.ini"
+	sed -i "s/\xc0\xa8\xb2/$PATCHIP/g" "WorldServer/WorldServer"
+	sed -i "s/\xc0\xa8\xb2/$PATCHIP/g" "ZoneServer/ZoneServer"
 	
 	# Data folder
-	wget --no-check-certificate "$DATAFOLDER" -O "Data.zip"
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$DATAFOLDER" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$DATAFOLDER" -O "Data.zip" && rm -rf "/tmp/cookies.txt"
+	unzip "Data.zip" -d "Data"
+	rm -f "Data.zip"
+	
+	# SQL files
+	wget --no-check-certificate "$SQLFILES" -O "SQL.zip"
+	unzip "SQL.zip" -d "SQL"
+	rm -f "SQL.zip"
+	
+	# set permissions
+	chmod 777 /root -R
+	
+	# install postgresql database
+	service postgresql restart
+	sudo -u postgres psql -c "create database \"FFAccount\" encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database \"FFDB1\" encoding 'UTF8' template template0;"
+	sudo -u postgres psql -c "create database \"FFMember\" encoding 'UTF8' template template0;"
+	sudo -u postgres psql -d FFAccount -c "\i '/root/hxsy/SQL/FFAccount.sql';"
+	sudo -u postgres psql -d FFDB1 -c "\i '/root/hxsy/SQL/FFDB1.sql';"
+	sudo -u postgres psql -d FFMember -c "\i '/root/hxsy/SQL/FFMember.sql';"
+	sudo -u postgres psql -d FFAccount -c "UPDATE worlds SET ip = '$EXTIP' WHERE ip = '192.168.1.99';"
+	sudo -u postgres psql -d FFDB1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.1.99';"
+	
+	# remove server setup files
+	rm -f eperty123_003_005_01_04
+	
+	#set the server date to 2013
+	timedatectl set-ntp 0
+	date -s "$(date +'2013%m%d %H:%M')"
+	hwclock --systohc
+	
+	# setup info
+	VERSIONNAME="eperty123 - 003.005.01.04"
+	CREDITS="Eperty123"
+fi
+
+# --------------------------------------------------
+# hycker - 003.005.01.03
+# --------------------------------------------------
+if [ "$AKVERSION" = 6 ] ; then
+	cd "/root/hxsy"
+	wget --no-check-certificate "https://raw.githubusercontent.com/haruka98/ak_oneclick_installer/master/hycker_003_005_01_03" -O "hycker_003_005_01_03"
+	chmod 777 hycker_003_005_01_03
+	. "/root/hxsy/hycker_003_005_01_03"
+	
+	# config files
+	wget --no-check-certificate "$MAINCONFIG" -O "config.zip"
+	unzip "config.zip"
+	rm -f "config.zip"
+	sed -i "s/hycker/$DBPASS/g" "setup.ini"
+	
+	# subservers
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$SUBSERVERSID" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$SUBSERVERSID" -O "server.zip" && rm -rf "/tmp/cookies.txt"
+	unzip "server.zip"
+	rm -f "server.zip"
+	sed -i "s/192.168.1.127/$EXTIP/g" "GatewayServer/setup.ini"
+	sed -i "s/hycker/$DBPASS/g" "GatewayServer/setup.ini"
+	sed -i "s/192.168.1.127/$EXTIP/g" "TicketServer/setup.ini"
+	sed -i "s/\xc0\xa8\x01/$PATCHIP/g" "WorldServer101/WorldServer101"
+	sed -i "s/\xc0\xa8\x01/$PATCHIP/g" "WorldServer102/WorldServer102"
+	sed -i "s/\xc0\xa8\x01/$PATCHIP/g" "ZoneServer101/ZoneServer101"
+	sed -i "s/\xc0\xa8\x01/$PATCHIP/g" "ZoneServer102/ZoneServer102"
+	
+	# Data folder
+	wget --no-check-certificate --load-cookies "/tmp/cookies.txt" "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=$DATAFOLDER" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$DATAFOLDER" -O "Data.zip" && rm -rf "/tmp/cookies.txt"
 	unzip "Data.zip" -d "Data"
 	rm -f "Data.zip"
 	
@@ -187,16 +440,14 @@ if [ "$AKVERSION" = 1 ] ; then
 	sudo -u postgres psql -c "create database ffaccount encoding 'UTF8' template template0;"
 	sudo -u postgres psql -c "create database ffdb1 encoding 'UTF8' template template0;"
 	sudo -u postgres psql -c "create database ffmember encoding 'UTF8' template template0;"
-	sudo -u postgres psql -c "create database itemmall encoding 'UTF8' template template0;"
-	sudo -u postgres psql -d ffaccount -c "\i '/root/hxsy/SQL/FFAccount.sql';"
-	sudo -u postgres psql -d ffdb1 -c "\i '/root/hxsy/SQL/FFDB1.sql';"
-	sudo -u postgres psql -d ffmember -c "\i '/root/hxsy/SQL/FFMember.sql';"
-	sudo -u postgres psql -d itemmall -c "\i '/root/hxsy/SQL/Itemmall.sql';"
-	sudo -u postgres psql -d ffaccount -c "UPDATE worlds SET ip = '$EXTIP' WHERE ip = '192.168.198.129';"
-	sudo -u postgres psql -d ffdb1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.198.129';"
+	sudo -u postgres psql -d ffaccount -c "\i '/root/hxsy/SQL/ffaccount.sql';"
+	sudo -u postgres psql -d ffdb1 -c "\i '/root/hxsy/SQL/ffdb1.sql';"
+	sudo -u postgres psql -d ffmember -c "\i '/root/hxsy/SQL/ffmember.sql';"
+	sudo -u postgres psql -d ffaccount -c "UPDATE worlds SET ip = '$EXTIP' WHERE ip = '192.168.1.127';"
+	sudo -u postgres psql -d ffdb1 -c "UPDATE serverstatus SET ext_address = '$EXTIP' WHERE ext_address = '192.168.1.127';"
 	
 	# remove server setup files
-	rm -f yokohiro_003_005_01_04
+	rm -f hycker_003_005_01_03
 	
 	#set the server date to 2013
 	timedatectl set-ntp 0
@@ -204,8 +455,8 @@ if [ "$AKVERSION" = 1 ] ; then
 	hwclock --systohc
 	
 	# setup info
-	VERSIONNAME="yokohiro - 003.005.01.04"
-	CREDITS="yokohiro, genz and Eperty123"
+	VERSIONNAME="hycker - 003.005.01.03"
+	CREDITS="Hycker"
 fi
 
 if [ "$VERSIONNAME" = "NONE" ] ; then
